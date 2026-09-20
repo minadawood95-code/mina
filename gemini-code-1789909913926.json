@@ -1,0 +1,107 @@
+{
+  "system": {
+    "church_name": "كنيسة الأنبا شنودة رئيس المتوحدين بالزرابي",
+    "store_name": "المخزن الرئيسي للمستلزمات",
+    "version": "1.0.0"
+  },
+  "roles": [
+    { "id": 1, "name": "مدير النظام" },
+    { "id": 2, "name": "أمين المخزن" },
+    { "id": 3, "name": "مستخدم للعرض" }
+  ],
+  "users": [
+    { "id": 1, "username": "admin", "fullName": "القمص شنودة - مدير المخزن", "role": "مدير النظام" },
+    { "id": 2, "username": "storekeeper", "fullName": "أستاذ مينا - أمين المخزن", "role": "أمين المخزن" }
+  ],
+  "categories": [
+    { "id": 1, "name": "مستلزمات الخدمات والكنيسة" },
+    { "id": 2, "name": "أدوات نظافة" },
+    { "id": 3, "name": "مستلزمات مطبخ وخدمة الأغابي" },
+    { "id": 4, "name": "أدوات مكتبية ومكتبة" }
+  ],
+  "suppliers": [
+    { "id": 1, "name": "مكتبة ومستلزمات مارجرجس", "type": "supplier", "phone": "01200000001" },
+    { "id": 2, "name": "خدمة مدارس الأحد", "type": "entity", "phone": "01200000003" }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "code": "PRD-101",
+      "name": "شمع أبيض كبير",
+      "category": "مستلزمات الخدمات والكنيسة",
+      "unit": "كيلو",
+      "quantity": 45,
+      "minQuantity": 10,
+      "location": "رف A1",
+      "notes": "درجة أولى ممتازة"
+    },
+    {
+      "id": 2,
+      "code": "PRD-102",
+      "name": "بخور ممتاز للخدمة",
+      "category": "مستلزمات الخدمات والكنيسة",
+      "unit": "علبة",
+      "quantity": 12,
+      "minQuantity": 5,
+      "location": "دولاب B2",
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "code": "PRD-103",
+      "name": "صابون سائل مطهر 5 لتر",
+      "category": "أدوات نظافة",
+      "unit": "جركن",
+      "quantity": 18,
+      "minQuantity": 5,
+      "location": "مخزن الأرضي",
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "code": "PRD-104",
+      "name": "أكواب بلاستيك استخدام مرة واحدة",
+      "category": "مستلزمات مطبخ وخدمة الأغابي",
+      "unit": "كرتونة",
+      "quantity": 3,
+      "minQuantity": 5,
+      "location": "رف C3",
+      "notes": "تحت الحد الأدنى"
+    },
+    {
+      "id": 5,
+      "code": "PRD-105",
+      "name": "ورق تصوير A4 - 80 جرام",
+      "category": "أدوات مكتبية ومكتبة",
+      "unit": "باكو",
+      "quantity": 0,
+      "minQuantity": 10,
+      "location": "مكتب الخدمة",
+      "notes": "نافد بالكامل"
+    }
+  ],
+  "stock_in": [
+    {
+      "id": 1,
+      "receipt_number": "IN-2026-001",
+      "product_id": 1,
+      "quantity": 50,
+      "unit_price": 120,
+      "supplier": "مكتبة ومستلزمات مارجرجس",
+      "date": "2026-09-01",
+      "user": "أستاذ مينا"
+    }
+  ],
+  "stock_out": [
+    {
+      "id": 1,
+      "receipt_number": "OUT-2026-001",
+      "product_id": 1,
+      "quantity": 5,
+      "recipient": "خدمة مدارس الأحد",
+      "date": "2026-09-05",
+      "user": "أستاذ مينا",
+      "reason": "قداس الجمعة وتحضير الأنشطة"
+    }
+  ]
+}
