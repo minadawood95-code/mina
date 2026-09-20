@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة مخزن كنيسة الأنبا شنودة رئيس المتوحدين بالزرابي</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        church: {
+                            50: '#fdfbf7',
+                            100: '#f7f2e7',
+                            200: '#ede0c8',
+                            300: '#dfca9e',
+                            400: '#cfac6e',
+                            500: '#bd9045',
+                            600: '#a37435',
+                            700: '#83582c',
+                            800: '#6d4829',
+                            900: '#5a3d25',
+                            950: '#332012',
+                        },
+                        burgundy: {
+                            50: '#fcf4f5',
+                            100: '#f9e6e8',
+                            500: '#800020',
+                            600: '#6b001b',
+                            700: '#540015',
+                            800: '#400010',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js for Dashboard Visuals -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(189, 144, 69, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(189, 144, 69, 0.7);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .print-container {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+    <div id="app" class="min-h-screen flex flex-col">
+        
+        <!-- LOGIN VIEW -->
+        <div id="login-view" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-church-900 via-slate-900 to-burgundy-800">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 w-full max-w-md border border-church-200/20 text-right">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-church-100 dark:bg-slate-700 text-church-600 dark:text-church-400 mb-4 shadow-inner">
+                        <i class="fa-solid font-bold text-3xl fa-church text-burgundy-600 dark:text-church-400"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-800 dark:text-white">كنيسة الأنبا شنودة رئيس المتوحدين</h1>
+                    <p class="text-church-600 dark:text-church-400 font-semibold text-sm mt-1">بالزرابي - نظام إدارة المخزن الإليكتروني</p>
+                </div>
+
+                <div id="login-error" class="hidden mb-4 p-3 bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 rounded-lg text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="login-error-text">بيانات الدخول غير صحيحة</span>
+                </div>
+
+                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">اسم المستخدم</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute right-3 top-3.5 text-slate-400"></i>
+                            <input type="text" id="username" required placeholder="أدخل اسم المستخدم"
+                                class="w-full pr-10 pl-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-church-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">كلمة المرور</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute right-3 top-3.5 text-slate-400"></i>
+                            <input type="password" id="password" required placeholder="أدخل كلمة المرور"
+                                class="w-full pr-10 pl-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-church-500 outline-none">
+                            <button type="button" onclick="togglePassword()" class="absolute left-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                <i id="password-toggle-icon" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="remember-me" class="rounded border-slate-300 text-church-600 focus:ring-church-500">
+                            <span class="text-slate-600 dark:text-slate-400">تذكرني على هذا الجهاز</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full bg-church-600 hover:bg-church-700 text-white font-bold py-3 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-lg shadow-church-600/30">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>تسجيل الدخول</span>
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-400">
+                    <p>الحسابات الافتراضية للاختبار:</p>
+                    <p class="mt-1 font-mono">admin / admin (مدير) | store / store (أمين مخزن)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN APP VIEW (Hidden by default) -->
+        <div id="main-view" class="hidden flex-1 flex flex-col min-h-screen">
+            
+            <!-- Top Navigation Bar -->
+            <header class="no-print bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm">
+                <div class="px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleSidebar()" class="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-burgundy-600 flex items-center justify-center text-amber-300 shadow-md">
+                                <i class="fa-solid fa-church text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-slate-800 dark:text-white text-base leading-tight">مخزن كنيسة الأنبا شنودة</h2>
+                                <p class="text-xs text-church-600 dark:text-church-400 font-medium">بالزرابي</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <!-- Quick Low Stock Alert Pill -->
+                        <button onclick="switchTab('items'); filterLowStock()" id="header-alert-pill" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-full text-xs font-semibold animate-pulse">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                            <span id="header-alert-count">0 أصناف تحتاج إعادة طلب</span>
+                        </button>
+
+                        <!-- Dark Mode Toggle -->
+                        <button onclick="toggleDarkMode()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                            <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                        </button>
+
+                        <!-- User Info & Logout -->
+                        <div class="flex items-center gap-3 pr-3 border-r border-slate-200 dark:border-slate-700">
+                            <div class="text-left hidden sm:block">
+                                <div id="current-user-name" class="font-bold text-sm text-slate-800 dark:text-slate-100">المستخدم</div>
+                                <div id="current-user-role" class="text-xs text-church-600 dark:text-church-400">مدير النظام</div>
+                            </div>
+                            <button onclick="logout()" title="تسجيل الخروج" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition">
+                                <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 flex overflow-hidden">
+                <!-- Sidebar -->
+                <aside id="sidebar" class="no-print w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col justify-between transition-all duration-300 z-20">
+                    <div class="p-4 space-y-1 overflow-y-auto">
+                        <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">القائمة الرئيسية</p>
+                        
+                        <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-chart-pie w-5 text-center text-amber-400"></i>
+                            <span>لوحة التحكم</span>
+                        </a>
+
+                        <a href="#" onclick="switchTab('items')" id="nav-items" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-boxes-stacked w-5 text-center text-blue-400"></i>
+                            <span>الأصناف والمخزون</span>
+                        </a>
+
+                        <a href="#" onclick="switchTab('categories')" id="nav-categories" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-tags w-5 text-center text-emerald-400"></i>
+                            <span>التصنيفات</span>
+                        </a>
+
+                        <a href="#" onclick="switchTab('stock-in')" id="nav-stock-in" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-arrow-down-to-bracket w-5 text-center text-green-400"></i>
+                            <span>حركة الوارد (إضافة)</span>
+                        </a>
+
+                        <a href="#" onclick="switchTab('stock-out')" id="nav-stock-out" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-arrow-up-from-bracket w-5 text-center text-rose-400"></i>
+                            <span>حركة المنصرف (صرف)</span>
+                        </a>
+
+                        <a href="#" onclick="switchTab('suppliers')" id="nav-suppliers" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-truck-field w-5 text-center text-purple-400"></i>
+                            <span>الموردين والجهات</span>
+                        </a>
+
+                        <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-2">الإدارة والتقارير</p>
+
+                        <a href="#" onclick="switchTab('reports')" id="nav-reports" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-file-invoice-dollar w-5 text-center text-teal-400"></i>
+                            <span>التقارير الشاملة</span>
+                        </a>
+
+                        <a href="#" onclick="switchTab('users')" id="nav-users" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-users-gear w-5 text-center text-indigo-400"></i>
+                            <span>إدارة المستخدمين</span>
+                        </a>
+
+                        <a href="#" onclick="switchTab('settings')" id="nav-settings" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-sliders w-5 text-center text-slate-400"></i>
+                            <span>إعدادات النظام والنسخ</span>
+                        </a>
+                    </div>
+
+                    <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                        نظام مخزن كنيسة بالزرابي v2.5<br>جميع الحقوق محفوظة © 2026
+                    </div>
+                </aside>
+
+                <!-- Content Area -->
+                <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-100 dark:bg-slate-900/50">
+                    
+                    <!-- TAB 1: DASHBOARD -->
+                    <div id="tab-dashboard" class="tab-content space-y-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">لوحة التحكم والإحصائيات</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">نظرة عامة ومباشرة على حالة المخزن والحركات الأخيرة</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openStockInModal()" class="btn bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-sm">
+                                    <i class="fa-solid fa-plus"></i> توريد جديد
+                                </button>
+                                <button onclick="openStockOutModal()" class="btn bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-sm">
+                                    <i class="fa-solid fa-minus"></i> صرف مستلزمات
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stat Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">إجمالي الأصناف</p>
+                                    <h3 id="dash-total-items" class="text-2xl font-extrabold mt-1 text-slate-800 dark:text-white">0</h3>
+                                    <span class="text-xs text-slate-400">صنف مسجل بالنظام</span>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-cubes"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">إجمالي الكميات بالمخزن</p>
+                                    <h3 id="dash-total-qty" class="text-2xl font-extrabold mt-1 text-slate-800 dark:text-white">0</h3>
+                                    <span class="text-xs text-slate-400">وحدة متوفرة</span>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-amber-400 transition" onclick="switchTab('items'); filterLowStock()">
+                                <div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">منخفض المخزون</p>
+                                    <h3 id="dash-low-stock" class="text-2xl font-extrabold mt-1 text-amber-600 dark:text-amber-400">0</h3>
+                                    <span class="text-xs text-amber-500">وصلت حد الأمان</span>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between cursor-pointer hover:border-red-400 transition" onclick="switchTab('items'); filterOutOfStock()">
+                                <div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">أصناف نافدة</p>
+                                    <h3 id="dash-out-stock" class="text-2xl font-extrabold mt-1 text-red-600 dark:text-red-400">0</h3>
+                                    <span class="text-xs text-red-500">الرصيد صفر</span>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-ban"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts & Recent Operations -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Movement Chart -->
+                            <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-chart-line text-church-600"></i> حركة الوارد والمنصرف المؤخرة
+                                    </h3>
+                                </div>
+                                <div class="h-64">
+                                    <canvas id="movementChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Distribution Chart -->
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <h3 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-pie text-church-600"></i> توزيع الأصناف حسب التصنيف
+                                </h3>
+                                <div class="h-64 flex items-center justify-center">
+                                    <canvas id="categoryChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Movements Table -->
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                            <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                                <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-clock-rotate-left text-church-600"></i> آخر العمليات المنفذة
+                                </h3>
+                                <span class="text-xs text-slate-500">تحديث تلقائي</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-sm">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
+                                        <tr>
+                                            <th class="p-3">نوع العملية</th>
+                                            <th class="p-3">الصنف</th>
+                                            <th class="p-3">الكمية</th>
+                                            <th class="p-3">الجهة / المورد</th>
+                                            <th class="p-3">المسؤول</th>
+                                            <th class="p-3">التاريخ والوقت</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dash-recent-table" class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: ITEMS MANAGEMENT -->
+                    <div id="tab-items" class="tab-content hidden space-y-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">إدارة الأصناف والمخزون</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">عرض وتعديل والتحكم في كافّة مستلزمات المخزن</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openItemModal()" class="btn bg-church-600 hover:bg-church-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-md">
+                                    <i class="fa-solid fa-plus-circle"></i> إضافة صنف جديد
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search & Filter Bar -->
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row gap-3 items-center">
+                            <div class="relative flex-1 w-full">
+                                <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-slate-400"></i>
+                                <input type="text" id="items-search" oninput="renderItemsTable()" placeholder="ابحث باسم الصنف أو الكود..."
+                                    class="w-full pr-10 pl-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-church-500">
+                            </div>
+                            <div class="flex items-center gap-2 w-full md:w-auto">
+                                <select id="items-category-filter" onchange="renderItemsTable()" class="w-full md:w-48 py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none">
+                                    <option value="">جميع التصنيفات</option>
+                                </select>
+                                <select id="items-stock-filter" onchange="renderItemsTable()" class="w-full md:w-40 py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm focus:outline-none">
+                                    <option value="all">كل الأرصدة</option>
+                                    <option value="low">منخفض المخزون</option>
+                                    <option value="out">نافد</option>
+                                    <option value="available">متوفر</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Items Table -->
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-sm">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
+                                        <tr>
+                                            <th class="p-3.5">الكود</th>
+                                            <th class="p-3.5">اسم الصنف</th>
+                                            <th class="p-3.5">التصنيف</th>
+                                            <th class="p-3.5">مكان التخزين</th>
+                                            <th class="p-3.5">الكمية الحالية</th>
+                                            <th class="p-3.5">الحد الأدنى</th>
+                                            <th class="p-3.5">الحالة</th>
+                                            <th class="p-3.5 text-center">إجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items-table-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: CATEGORIES -->
+                    <div id="tab-categories" class="tab-content hidden space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">إدارة تصنيفات المستلزمات</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">تصنيف المستلزمات إلى أقسام (أدوات نظافة، مستلزمات قداس، أنشطة...)</p>
+                            </div>
+                            <button onclick="openCategoryModal()" class="btn bg-church-600 hover:bg-church-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-md">
+                                <i class="fa-solid fa-folder-plus"></i> إضافة تصنيف جديد
+                            </button>
+                        </div>
+
+                        <div id="categories-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Dynamic Cards -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: STOCK IN (الوارد) -->
+                    <div id="tab-stock-in" class="tab-content hidden space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">سجل حركات الوارد (التوريد)</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">متابعة كافة عمليات توريد المستلزمات والمشتريات وإضافتها للمخزون</p>
+                            </div>
+                            <button onclick="openStockInModal()" class="btn bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-md">
+                                <i class="fa-solid fa-plus-circle"></i> تسجيل عملية توريد جديدة
+                            </button>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-sm">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
+                                        <tr>
+                                            <th class="p-3">رقم العملية</th>
+                                            <th class="p-3">التاريخ</th>
+                                            <th class="p-3">الصنف</th>
+                                            <th class="p-3">الكمية الموردة</th>
+                                            <th class="p-3">المورد / الجهة</th>
+                                            <th class="p-3">سعر الوحدة</th>
+                                            <th class="p-3">الإجمالي</th>
+                                            <th class="p-3">المسؤول</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="stock-in-table-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: STOCK OUT (المنصرف) -->
+                    <div id="tab-stock-out" class="tab-content hidden space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">سجل حركات المنصرف (الصرف)</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">متابعة صرف العهد والمستلزمات لمختلف الأنشطة والخدمات</p>
+                            </div>
+                            <button onclick="openStockOutModal()" class="btn bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-md">
+                                <i class="fa-solid fa-minus-circle"></i> تسجيل عملية صرف جديدة
+                            </button>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-sm">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
+                                        <tr>
+                                            <th class="p-3">رقم العملية</th>
+                                            <th class="p-3">التاريخ</th>
+                                            <th class="p-3">الصنف</th>
+                                            <th class="p-3">الكمية المنصرفة</th>
+                                            <th class="p-3">الجهة المستلمة</th>
+                                            <th class="p-3">سبب الصرف</th>
+                                            <th class="p-3">المسؤول</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="stock-out-table-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 6: SUPPLIERS & RECIPIENTS -->
+                    <div id="tab-suppliers" class="tab-content hidden space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">الموردين والجهات المستلمة</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">إدارة بيانات التجار، والموردين، والأنشطة والخدمات الكنسية</p>
+                            </div>
+                            <button onclick="openSupplierModal()" class="btn bg-church-600 hover:bg-church-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-md">
+                                <i class="fa-solid fa-address-book"></i> إضافة جهة / مورد جديد
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="suppliers-grid">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 7: REPORTS -->
+                    <div id="tab-reports" class="tab-content hidden space-y-6">
+                        <div class="no-print flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">مركز التقارير والطباعة</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">توليد وطباعة كافة تقارير الجرد والحركات وإحصائيات المخزن</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="window.print()" class="btn bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow">
+                                    <i class="fa-solid fa-print"></i> طباعة التقرير
+                                </button>
+                                <button onclick="exportReportToExcel()" class="btn bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow">
+                                    <i class="fa-solid fa-file-excel"></i> تصدير Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Report Config Controls -->
+                        <div class="no-print bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">نوع التقرير</label>
+                                    <select id="report-type" onchange="generateReport()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                                        <option value="inventory">تقرير رصيد المخزون الحالي (جرد)</option>
+                                        <option value="low-stock">تقرير الأصناف الناقصة والمنخفضة</option>
+                                        <option value="stock-in">تقرير حركة الوارد خلال فترة</option>
+                                        <option value="stock-out">تقرير حركة المنصرف خلال فترة</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">من تاريخ</label>
+                                    <input type="date" id="report-date-start" onchange="generateReport()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">إلى تاريخ</label>
+                                    <input type="date" id="report-date-end" onchange="generateReport()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">التصنيف</label>
+                                    <select id="report-category" onchange="generateReport()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                                        <option value="all">جميع التصنيفات</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Printable Report Container -->
+                        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg print-container">
+                            <!-- Official Header -->
+                            <div class="border-b-2 border-slate-800 pb-4 mb-6 flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">مطرانية أسيوط - كنيسة الأنبا شنودة رئيس المتوحدين</h2>
+                                    <p class="text-sm font-semibold text-church-700 dark:text-church-400">إدارة مخزون ومستلزمات الكنيسة بالزرابي</p>
+                                    <p id="report-title-display" class="text-base font-extrabold text-slate-800 dark:text-slate-200 mt-2">تقرير المخزون الحالي</p>
+                                </div>
+                                <div class="text-left text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                                    <p>تاريخ الاصدار: <span id="report-print-date"></span></p>
+                                    <p>طُبع بواسطة: <span id="report-print-user">المدير</span></p>
+                                    <p>الصفحة: 1 من 1</p>
+                                </div>
+                            </div>
+
+                            <!-- Report Content Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-sm border-collapse border border-slate-300 dark:border-slate-700">
+                                    <thead id="report-table-head" class="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+                                        <!-- Rendered dynamically -->
+                                    </thead>
+                                    <tbody id="report-table-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Footer Signature for Printing -->
+                            <div class="mt-12 pt-6 grid grid-cols-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                <div>أمين المخزن<br><br>...........................</div>
+                                <div>المسؤول المالي / الأب الكاهن<br><br>...........................</div>
+                                <div>يعتمد،<br><br>...........................</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 8: USERS & PERMISSIONS -->
+                    <div id="tab-users" class="tab-content hidden space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">إدارة المستخدمين والصلاحيات</h1>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">إضافة مستخدمين وتحديد الأدوار (مدير النظام، أمين المخزن، مستخدم للعرض)</p>
+                            </div>
+                            <button onclick="openUserModal()" class="btn bg-church-600 hover:bg-church-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-md">
+                                <i class="fa-solid fa-user-plus"></i> إضافة مستخدم جديد
+                            </button>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                            <table class="w-full text-right text-sm">
+                                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300">
+                                    <tr>
+                                        <th class="p-3.5">الاسم</th>
+                                        <th class="p-3.5">اسم المستخدم</th>
+                                        <th class="p-3.5">الصلاحية / الدور</th>
+                                        <th class="p-3.5">الحالة</th>
+                                        <th class="p-3.5 text-center">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 9: SETTINGS & BACKUP -->
+                    <div id="tab-settings" class="tab-content hidden space-y-6">
+                        <div>
+                            <h1 class="text-2xl font-bold text-slate-800 dark:text-white">إعدادات النظام والبيانات</h1>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">التحكم في بيانات الكنيسة والنسخ الاحتياطي وإعادة الضبط</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Church Info Settings -->
+                            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                                <h3 class="font-bold text-lg text-slate-800 dark:text-white border-b pb-2 dark:border-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-church text-church-600"></i> بيانات الكنيسة والمخزن
+                                </h3>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">اسم الكنيسة</label>
+                                    <input type="text" value="كنيسة الأنبا شنودة رئيس المتوحدين" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">المقر / المقاطعة</label>
+                                    <input type="text" value="الزرابي - أسيوط" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">عنوان الترويسة في التقارير</label>
+                                    <input type="text" value="إدارة المخزن والمستلزمات العامة" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                                </div>
+                                <button onclick="showToast('تم حفظ إعدادات الكنيسة بنجاح', 'success')" class="btn bg-church-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">
+                                    حفظ البيانات
+                                </button>
+                            </div>
+
+                            <!-- Backup & Restore -->
+                            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                                <h3 class="font-bold text-lg text-slate-800 dark:text-white border-b pb-2 dark:border-slate-700 flex items-center gap-2">
+                                    <i class="fa-solid fa-database text-church-600"></i> النسخ الاحتياطي والأمان
+                                </h3>
+                                <p class="text-xs text-slate-500">يمكنك تصدير قاعدة البيانات بالكامل للغرض الاحتياطي، أو إعادة استعادتها لاحقاً.</p>
+                                
+                                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                    <button onclick="exportBackupData()" class="flex-1 btn bg-emerald-600 hover:bg-emerald-700 text-white p-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-download"></i> تصدير نسخة احتياطية (JSON)
+                                    </button>
+
+                                    <label class="flex-1 btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                                        <i class="fa-solid fa-upload"></i> استعادة من ملف
+                                        <input type="file" accept=".json" onchange="importBackupData(event)" class="hidden">
+                                    </label>
+                                </div>
+
+                                <div class="pt-4 border-t dark:border-slate-700">
+                                    <button onclick="confirmResetData()" class="btn bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:text-red-300 w-full p-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-trash-arrow-up"></i> إعادة ضبط البيانات التجريبية الافتراضية
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DIALOGS -->
+    
+    <!-- Item Modal -->
+    <div id="item-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="bg-church-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 id="item-modal-title" class="font-bold text-lg">إضافة صنف جديد</h3>
+                <button onclick="closeModal('item-modal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="item-form" onsubmit="saveItem(event)" class="p-6 space-y-4">
+                <input type="hidden" id="item-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">كود الصنف *</label>
+                        <input type="text" id="item-code" required placeholder="مثال: PRD-101" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">التصنيف *</label>
+                        <select id="item-category" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                            <!-- Dynamic -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">اسم الصنف *</label>
+                    <input type="text" id="item-name" required placeholder="مثال: شمع قداس مقاس كبير" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">الوحدة *</label>
+                        <input type="text" id="item-unit" required placeholder="علبة / كيلو / قطعة" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">الكمية الحالية</label>
+                        <input type="number" id="item-qty" value="0" min="0" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">الحد الأدنى للتنبيه *</label>
+                        <input type="number" id="item-min-qty" value="5" min="1" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">مكان التخزين بالمخزن</label>
+                    <input type="text" id="item-location" placeholder="مثال: رف 2 - دولاب المستلزمات" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">ملاحظات إضافية</label>
+                    <textarea id="item-notes" rows="2" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-slate-700">
+                    <button type="button" onclick="closeModal('item-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">إلغاء</button>
+                    <button type="submit" class="btn bg-church-600 hover:bg-church-700 text-white px-5 py-2 rounded-xl text-sm font-semibold">حفظ الصنف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock In Modal -->
+    <div id="stock-in-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="bg-emerald-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-arrow-down-to-bracket"></i> تسجيل حركة توريد (وارد)</h3>
+                <button onclick="closeModal('stock-in-modal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="stock-in-form" onsubmit="saveStockIn(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">اختر الصنف المورد *</label>
+                    <select id="in-item-id" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                        <!-- Dynamic -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">الكمية الموردة *</label>
+                        <input type="number" id="in-qty" min="1" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1">سعر الوحدة (إن وجد)</label>
+                        <input type="number" id="in-price" min="0" step="0.5" value="0" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">المورد / الجهة الموردة *</label>
+                    <select id="in-supplier" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                        <!-- Dynamic -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">ملاحظات التوريد</label>
+                    <input type="text" id="in-notes" placeholder="مثال: فاتورة رقم 402 - تبرع أو شراء" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-slate-700">
+                    <button type="button" onclick="closeModal('stock-in-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400">إلغاء</button>
+                    <button type="submit" class="btn bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl text-sm font-semibold">تأكيد التوريد وزيادة المخزون</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Out Modal -->
+    <div id="stock-out-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="bg-rose-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-arrow-up-from-bracket"></i> تسجيل حركة صرف مستلزمات</h3>
+                <button onclick="closeModal('stock-out-modal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="stock-out-form" onsubmit="saveStockOut(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">اختر الصنف المراد صرفه *</label>
+                    <select id="out-item-id" required onchange="updateMaxOutStockHint()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                        <!-- Dynamic -->
+                    </select>
+                    <span id="out-stock-hint" class="text-xs font-semibold text-slate-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">الكمية المراد صرفها *</label>
+                    <input type="number" id="out-qty" min="1" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">الجهة / الخدمة المستلمة *</label>
+                    <input type="text" id="out-recipient" required placeholder="مثال: خدمة مدارس الأحد / المطبخ / القداس" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold mb-1">سبب / غرض الصرف</label>
+                    <input type="text" id="out-reason" placeholder="مثال: لزوم نهضة العذراء مريم" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-slate-700">
+                    <button type="button" onclick="closeModal('stock-out-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400">إلغاء</button>
+                    <button type="submit" class="btn bg-rose-600 hover:bg-rose-700 text-white px-5 py-2 rounded-xl text-sm font-semibold">تأكيد الصرف وخصم المخزون</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Item Timeline Modal -->
+    <div id="timeline-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col max-h-[85vh]">
+            <div class="bg-slate-800 text-white px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h3 id="timeline-item-title" class="font-bold text-lg">سجل حركة الصنف التفصيلي</h3>
+                    <p id="timeline-item-subtitle" class="text-xs text-slate-300"></p>
+                </div>
+                <button onclick="closeModal('timeline-modal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 flex-1" id="timeline-content">
+                <!-- Timeline items rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Modal -->
+    <div id="supplier-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="bg-church-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg">إضافة / تعديل جهة أو مورد</h3>
+                <button onclick="closeModal('supplier-modal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="supplier-form" onsubmit="saveSupplier(event)" class="p-6 space-y-4">
+                <input type="hidden" id="supplier-id">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">الاسم *</label>
+                    <input type="text" id="supplier-name" required placeholder="اسم التاجر أو الجهة الكنسية" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">رقم الهاتف / التواصل</label>
+                    <input type="text" id="supplier-phone" placeholder="012xxxxxxxx" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">العنوان / التفاصيل</label>
+                    <input type="text" id="supplier-address" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-slate-700">
+                    <button type="button" onclick="closeModal('supplier-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold">إلغاء</button>
+                    <button type="submit" class="btn bg-church-600 hover:bg-church-700 text-white px-5 py-2 rounded-xl text-sm font-semibold">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="category-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="bg-church-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg">إضافة تصنيف جديد</h3>
+                <button onclick="closeModal('category-modal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="category-form" onsubmit="saveCategory(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">اسم التصنيف *</label>
+                    <input type="text" id="cat-name" required placeholder="مثال: مستلزمات الأنشطة" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">وصف قصير</label>
+                    <input type="text" id="cat-desc" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-slate-700">
+                    <button type="button" onclick="closeModal('category-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold">إلغاء</button>
+                    <button type="submit" class="btn bg-church-600 text-white px-5 py-2 rounded-xl text-sm font-semibold">حفظ التصنيف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="bg-church-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg">إضافة مستخدم جديد</h3>
+                <button onclick="closeModal('user-modal')" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="user-form" onsubmit="saveUser(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">الاسم الكامل *</label>
+                    <input type="text" id="user-fullname" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">اسم المستخدم *</label>
+                    <input type="text" id="user-name" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">كلمة المرور *</label>
+                    <input type="password" id="user-pass" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">الصلاحية *</label>
+                    <select id="user-role" required class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm">
+                        <option value="admin">مدير النظام (جميع الصلاحيات)</option>
+                        <option value="storekeeper">أمين مخزن (إضافة وتعديل وصرف وتوريد)</option>
+                        <option value="viewer">مستخدم للعرض والتقارير فقط</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-slate-700">
+                    <button type="button" onclick="closeModal('user-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold">إلغاء</button>
+                    <button type="submit" class="btn bg-church-600 text-white px-5 py-2 rounded-xl text-sm font-semibold">حفظ المستخدم</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 left-5 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // State Initialization with Seed Data
+        const SEED_DATA = {
+            categories: [
+                { id: '1', name: 'مستلزمات القداس والخدمات', desc: 'شموع، بخور، أواني، زيت' },
+                { id: '2', name: 'أدوات نظافة وطهارة', desc: 'مطهّرات، أدوات كنس وغسيل' },
+                { id: '3', name: 'مستلزمات مطبخ وافتقاد', desc: 'أطباق، أكواب، مواد غذائية' },
+                { id: '4', name: 'أدوات مكتبية ومطبوعات', desc: 'أوراق، أقلام، كتب أنشطة' }
+            ],
+            items: [
+                { id: 'i1', code: 'SRV-001', name: 'شمع قداس ممتازة - مقاس كبير', categoryId: '1', qty: 120, minQty: 25, unit: 'علبة', location: 'مخزن الهيكل - رف A', notes: 'شمع نقّي' },
+                { id: 'i2', code: 'SRV-002', name: 'بخور كنسي فاخر', categoryId: '1', qty: 15, minQty: 5, unit: 'كيلو', location: 'مخزن الهيكل - درج 3', notes: '' },
+                { id: 'i3', code: 'CLN-001', name: 'مطهر أرضيات وسيراميك', categoryId: '2', qty: 4, minQty: 10, unit: 'جركن 5 لتر', location: 'مخزن النظافة السفلي', notes: 'يحتاج إعادة طلب قريباً' },
+                { id: 'i4', code: 'CLN-002', name: 'أكياس قمامة حجم كبير', categoryId: '2', qty: 0, minQty: 8, unit: 'لفة', location: 'مخزن النظافة السفلي', notes: 'نافد تماماً' },
+                { id: 'i5', code: 'KTN-001', name: 'أكواب بلاستيك استخدام مرة واحدة', categoryId: '3', qty: 450, minQty: 100, unit: 'قطعة', location: 'مطبخ الكنيسة - رف العلو', notes: '' },
+                { id: 'i6', code: 'OFF-001', name: 'ورق تصوير A4 - 80 جرام', categoryId: '4', qty: 18, minQty: 5, unit: 'باكيت', location: 'مكتب السكرتارية', notes: 'لخدمة المدارس الأحد' }
+            ],
+            suppliers: [
+                { id: 's1', name: 'مؤسسة الشموع المصرية', phone: '01223456789', address: 'أسيوط - شارع النيل' },
+                { id: 's2', name: 'شركة البركة للمستلزمات العامة', phone: '01011223344', address: 'الزرابي' },
+                { id: 's3', name: 'مطبخ خدمات الكنيسة', phone: '-', address: 'مبنى الخدمات - الدور الأرضي' }
+            ],
+            users: [
+                { id: 'u1', username: 'admin', fullname: 'أبونا المسؤول / المدير', role: 'admin', pass: 'admin' },
+                { id: 'u2', username: 'store', fullname: 'أمين المخزن الرئيسي', role: 'storekeeper', pass: 'store' },
+                { id: 'u3', username: 'viewer', fullname: 'متابع الأنشطة', role: 'viewer', pass: 'viewer' }
+            ],
+            stockIn: [
+                { id: 'in1', code: 'IN-1001', itemId: 'i1', qty: 50, price: 120, supplierId: 's1', user: 'admin', date: '2026-03-01 10:30' },
+                { id: 'in2', code: 'IN-1002', itemId: 'i2', qty: 10, price: 300, supplierId: 's2', user: 'store', date: '2026-03-05 14:15' }
+            ],
+            stockOut: [
+                { id: 'out1', code: 'OUT-2001', itemId: 'i1', qty: 10, recipient: 'قداس الجمعة', reason: 'خدمة الهيكل', user: 'store', date: '2026-03-08 08:00' },
+                { id: 'out2', code: 'OUT-2002', itemId: 'i3', qty: 6, recipient: 'عمال النظافة', reason: 'تنظيف الصحن الرئيسي', user: 'admin', date: '2026-03-10 11:20' }
+            ]
+        };
+
+        let appData = { ...SEED_DATA };
+        let currentUser = null;
+        let chartInstance1 = null;
+        let chartInstance2 = null;
+
+        function loadStorage() {
+            const saved = localStorage.getItem('church_inventory_db');
+            if (saved) {
+                try {
+                    appData = JSON.parse(saved);
+                } catch(e) {
+                    console.error('Failed to parse storage data', e);
+                }
+            } else {
+                saveStorage();
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('church_inventory_db', JSON.stringify(appData));
+        }
+
+        // Initialize App
+        window.onload = function() {
+            loadStorage();
+            checkAutoLogin();
+            
+            // Set default date range for reports
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            document.getElementById('report-date-start').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('report-date-end').value = now.toISOString().split('T')[0];
+        };
+
+        function togglePassword() {
+            const passInput = document.getElementById('password');
+            const icon = document.getElementById('password-toggle-icon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const uName = document.getElementById('username').value.trim();
+            const uPass = document.getElementById('password').value.trim();
+            const remember = document.getElementById('remember-me').checked;
+
+            const user = appData.users.find(u => u.username === uName && u.pass === uPass);
+
+            if (user) {
+                currentUser = user;
+                if (remember) {
+                    localStorage.setItem('church_auth_user', JSON.stringify(user));
+                } else {
+                    sessionStorage.setItem('church_auth_user', JSON.stringify(user));
+                }
+                document.getElementById('login-error').classList.add('hidden');
+                initMainView();
+                showToast(`أهلاً بك يا ${user.fullname}`, 'success');
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        }
+
+        function checkAutoLogin() {
+            const saved = localStorage.getItem('church_auth_user') || sessionStorage.getItem('church_auth_user');
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    initMainView();
+                } catch(e) {}
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('church_auth_user');
+            sessionStorage.removeItem('church_auth_user');
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+        }
+
+        function initMainView() {
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('main-view').classList.remove('hidden');
+
+            document.getElementById('current-user-name').innerText = currentUser.fullname;
+            
+            const rolesMap = { 'admin': 'مدير النظام', 'storekeeper': 'أمين مخزن', 'viewer': 'مستخدم للعرض' };
+            document.getElementById('current-user-role').innerText = rolesMap[currentUser.role] || currentUser.role;
+
+            applyUserPermissions();
+            switchTab('dashboard');
+        }
+
+        function applyUserPermissions() {
+            // Hide specific action buttons if viewer
+            const isViewer = currentUser.role === 'viewer';
+            const actionBtns = document.querySelectorAll('.btn-admin-only');
+            actionBtns.forEach(btn => {
+                btn.style.display = isViewer ? 'none' : 'inline-flex';
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-church-600', 'text-white');
+                el.classList.add('hover:bg-slate-800');
+            });
+
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) activeTab.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-church-600', 'text-white');
+            }
+
+            // Render specific tab content
+            if (tabId === 'dashboard') renderDashboard();
+            if (tabId === 'items') renderItemsTable();
+            if (tabId === 'categories') renderCategories();
+            if (tabId === 'stock-in') renderStockInTable();
+            if (tabId === 'stock-out') renderStockOutTable();
+            if (tabId === 'suppliers') renderSuppliers();
+            if (tabId === 'reports') generateReport();
+            if (tabId === 'users') renderUsers();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-mr-64');
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                html.classList.add('dark');
+                icon.classList.replace('fa-moon', 'fa-sun');
+            }
+        }
+
+        function renderDashboard() {
+            const totalItems = appData.items.length;
+            const totalQty = appData.items.reduce((acc, item) => acc + Number(item.qty), 0);
+            const lowStockItems = appData.items.filter(i => Number(i.qty) <= Number(i.minQty) && Number(i.qty) > 0);
+            const outOfStockItems = appData.items.filter(i => Number(i.qty) === 0);
+
+            document.getElementById('dash-total-items').innerText = totalItems;
+            document.getElementById('dash-total-qty').innerText = totalQty;
+            document.getElementById('dash-low-stock').innerText = lowStockItems.length;
+            document.getElementById('dash-out-stock').innerText = outOfStockItems.length;
+
+            // Header alert pill
+            const alertCount = lowStockItems.length + outOfStockItems.length;
+            const alertPill = document.getElementById('header-alert-pill');
+            if (alertCount > 0) {
+                alertPill.classList.remove('hidden');
+                document.getElementById('header-alert-count').innerText = `${alertCount} أصناف تحتاج إعادة طلب`;
+            } else {
+                alertPill.classList.add('hidden');
+            }
+
+            // Render Recent Operations Table
+            const recentTable = document.getElementById('dash-recent-table');
+            recentTable.innerHTML = '';
+
+            const movements = [
+                ...appData.stockIn.map(i => ({ ...i, type: 'in' })),
+                ...appData.stockOut.map(o => ({ ...o, type: 'out' }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+            if (movements.length === 0) {
+                recentTable.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">لا توجد عمليات مسجلة حديثاً</td></tr>`;
+            } else {
+                movements.forEach(m => {
+                    const item = appData.items.find(i => i.id === m.itemId);
+                    const itemName = item ? item.name : 'صنف غير معروف';
+                    const isIn = m.type === 'in';
+
+                    recentTable.innerHTML += `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                            <td class="p-3">
+                                <span class="px-2.5 py-1 rounded-full text-xs font-bold ${isIn ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300'}">
+                                    ${isIn ? 'وارد (إضافة)' : 'منصرف (صرف)'}
+                                </span>
+                            </td>
+                            <td class="p-3 font-semibold">${itemName}</td>
+                            <td class="p-3 font-bold ${isIn ? 'text-emerald-600' : 'text-rose-600'}">${isIn ? '+' : '-'}${m.qty} ${item ? item.unit : ''}</td>
+                            <td class="p-3 text-slate-600 dark:text-slate-400">${m.recipient || (appData.suppliers.find(s => s.id === m.supplierId)?.name || 'غير محدد')}</td>
+                            <td class="p-3">${m.user || 'المدير'}</td>
+                            <td class="p-3 text-xs text-slate-500">${m.date}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Chart.js Visuals
+            renderCharts();
+        }
+
+        function renderCharts() {
+            // Category Distribution Chart
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            const catLabels = appData.categories.map(c => c.name);
+            const catData = appData.categories.map(c => {
+                return appData.items.filter(i => i.categoryId === c.id).length;
+            });
+
+            if (chartInstance2) chartInstance2.destroy();
+            chartInstance2 = new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        data: catData,
+                        backgroundColor: ['#bd9045', '#059669', '#2563eb', '#9333ea', '#e11d48'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Cairo' } } } }
+                }
+            });
+
+            // Movement Trend Chart
+            const movCtx = document.getElementById('movementChart').getContext('2d');
+            if (chartInstance1) chartInstance1.destroy();
+            chartInstance1 = new Chart(movCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['إجمالي الواردات', 'إجمالي المنصرفات'],
+                    datasets: [{
+                        label: 'عدد الحركات',
+                        data: [appData.stockIn.length, appData.stockOut.length],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function renderItemsTable() {
+            const tbody = document.getElementById('items-table-body');
+            const search = document.getElementById('items-search')?.value.toLowerCase() || '';
+            const catFilter = document.getElementById('items-category-filter')?.value || '';
+            const stockFilter = document.getElementById('items-stock-filter')?.value || 'all';
+
+            // Populate category select dropdown
+            const catSelect = document.getElementById('items-category-filter');
+            if (catSelect && catSelect.children.length <= 1) {
+                appData.categories.forEach(c => {
+                    catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            }
+
+            tbody.innerHTML = '';
+
+            let filtered = appData.items.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(search) || item.code.toLowerCase().includes(search);
+                const matchesCat = !catFilter || item.categoryId === catFilter;
+                
+                let matchesStock = true;
+                const qty = Number(item.qty);
+                const min = Number(item.minQty);
+
+                if (stockFilter === 'low') matchesStock = qty <= min && qty > 0;
+                if (stockFilter === 'out') matchesStock = qty === 0;
+                if (stockFilter === 'available') matchesStock = qty > min;
+
+                return matchesSearch && matchesCat && matchesStock;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">لا توجد أصناف مطابقة للبحث</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const category = appData.categories.find(c => c.id === item.categoryId)?.name || 'عام';
+                const qty = Number(item.qty);
+                const min = Number(item.minQty);
+
+                let badge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">متوفر</span>`;
+                if (qty === 0) {
+                    badge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">نافد بالكامل</span>`;
+                } else if (qty <= min) {
+                    badge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">حد أمان منخفض</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                        <td class="p-3.5 font-mono text-xs font-bold text-church-700 dark:text-church-400">${item.code}</td>
+                        <td class="p-3.5 font-bold text-slate-800 dark:text-white">${item.name}</td>
+                        <td class="p-3.5 text-slate-600 dark:text-slate-300">${category}</td>
+                        <td class="p-3.5 text-xs text-slate-500">${item.location || '-'}</td>
+                        <td class="p-3.5 font-bold text-base">${qty} <span class="text-xs font-normal text-slate-500">${item.unit}</span></td>
+                        <td class="p-3.5 text-slate-500">${min}</td>
+                        <td class="p-3.5">${badge}</td>
+                        <td class="p-3.5 text-center space-x-1 space-x-reverse">
+                            <button onclick="viewItemTimeline('${item.id}')" title="سجل الحركة" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg">
+                                <i class="fa-solid fa-timeline"></i>
+                            </button>
+                            <button onclick="editItem('${item.id}')" title="تعديل" class="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteItem('${item.id}')" title="حذف" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterLowStock() {
+            document.getElementById('items-stock-filter').value = 'low';
+            renderItemsTable();
+        }
+
+        function filterOutOfStock() {
+            document.getElementById('items-stock-filter').value = 'out';
+            renderItemsTable();
+        }
+
+        // Item Modal Save Function
+        function saveItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('item-id').value;
+            const code = document.getElementById('item-code').value.trim();
+            const name = document.getElementById('item-name').value.trim();
+            const categoryId = document.getElementById('item-category').value;
+            const unit = document.getElementById('item-unit').value.trim();
+            const qty = Number(document.getElementById('item-qty').value);
+            const minQty = Number(document.getElementById('item-min-qty').value);
+            const location = document.getElementById('item-location').value.trim();
+            const notes = document.getElementById('item-notes').value.trim();
+
+            // Duplicate code check
+            const duplicate = appData.items.find(i => i.code === code && i.id !== id);
+            if (duplicate) {
+                showToast('كود الصنف مستخدم بالفعل لـ صنف آخر!', 'error');
+                return;
+            }
+
+            if (id) {
+                // Update
+                const index = appData.items.findIndex(i => i.id === id);
+                if (index !== -1) {
+                    appData.items[index] = { id, code, name, categoryId, unit, qty, minQty, location, notes };
+                    showToast('تم تعديل بيانات الصنف بنجاح', 'success');
+                }
+            } else {
+                // Create
+                const newItem = {
+                    id: 'i_' + Date.now(),
+                    code, name, categoryId, unit, qty, minQty, location, notes
+                };
+                appData.items.push(newItem);
+                showToast('تمت إضافة الصنف جديد للمخزن بنجاح', 'success');
+            }
+
+            saveStorage();
+            closeModal('item-modal');
+            renderItemsTable();
+        }
+
+        function openItemModal(itemId = null) {
+            // Populate category select
+            const select = document.getElementById('item-category');
+            select.innerHTML = '';
+            appData.categories.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+
+            if (itemId) {
+                const item = appData.items.find(i => i.id === itemId);
+                if (item) {
+                    document.getElementById('item-modal-title').innerText = 'تعديل بيانات صنف';
+                    document.getElementById('item-id').value = item.id;
+                    document.getElementById('item-code').value = item.code;
+                    document.getElementById('item-name').value = item.name;
+                    document.getElementById('item-category').value = item.categoryId;
+                    document.getElementById('item-unit').value = item.unit;
+                    document.getElementById('item-qty').value = item.qty;
+                    document.getElementById('item-min-qty').value = item.minQty;
+                    document.getElementById('item-location').value = item.location || '';
+                    document.getElementById('item-notes').value = item.notes || '';
+                }
+            } else {
+                document.getElementById('item-modal-title').innerText = 'إضافة صنف جديد';
+                document.getElementById('item-form').reset();
+                document.getElementById('item-id').value = '';
+                document.getElementById('item-code').value = 'PRD-' + Math.floor(100 + Math.random() * 900);
+            }
+
+            document.getElementById('item-modal').classList.remove('hidden');
+        }
+
+        function editItem(id) {
+            openItemModal(id);
+        }
+
+        function deleteItem(id) {
+            // Check if item has movements
+            const hasMovements = appData.stockIn.some(i => i.itemId === id) || appData.stockOut.some(o => o.itemId === id);
+            if (hasMovements) {
+                showToast('لا يمكن حذف الصنف لوجود عمليات توريد أو صرف مسجلة باسمه!', 'error');
+                return;
+            }
+
+            if (confirm('هل أنت تأكد من إزالة هذا الصنف من المخزن؟')) {
+                appData.items = appData.items.filter(i => i.id !== id);
+                saveStorage();
+                renderItemsTable();
+                showToast('تم حذف الصنف بنجاح', 'success');
+            }
+        }
+
+        function viewItemTimeline(itemId) {
+            const item = appData.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('timeline-item-title').innerText = `حركة صنف: ${item.name}`;
+            document.getElementById('timeline-item-subtitle').innerText = `الكود: ${item.code} | الرصيد الحالي: ${item.qty} ${item.unit}`;
+
+            const container = document.getElementById('timeline-content');
+            container.innerHTML = '';
+
+            const movements = [
+                ...appData.stockIn.filter(i => i.itemId === itemId).map(i => ({ ...i, type: 'in' })),
+                ...appData.stockOut.filter(o => o.itemId === itemId).map(o => ({ ...o, type: 'out' }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (movements.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-8">لم يتم تسجيل أي حركة توريد أو صرف لهذا الصنف بعد.</p>`;
+            } else {
+                movements.forEach(m => {
+                    const isIn = m.type === 'in';
+                    container.innerHTML += `
+                        <div class="flex gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/40 border-r-4 ${isIn ? 'border-emerald-500' : 'border-rose-500'}">
+                            <div class="w-10 h-10 rounded-full ${isIn ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} flex items-center justify-center font-bold text-lg">
+                                <i class="fa-solid ${isIn ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-sm text-slate-800 dark:text-white">${isIn ? 'عملية توريد (إضافة)' : 'عملية صرف (خصم)'}</h4>
+                                    <span class="text-xs text-slate-400">${m.date}</span>
+                                </div>
+                                <p class="text-sm font-semibold mt-1 ${isIn ? 'text-emerald-600' : 'text-rose-600'}">
+                                    الكمية: ${isIn ? '+' : '-'}${m.qty} ${item.unit}
+                                </p>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    الجهة/المورد: ${m.recipient || (appData.suppliers.find(s => s.id === m.supplierId)?.name || 'غير محدد')} | المسجل: ${m.user || 'المدير'}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('timeline-modal').classList.remove('hidden');
+        }
+
+        function openStockInModal() {
+            const select = document.getElementById('in-item-id');
+            select.innerHTML = '';
+            appData.items.forEach(i => {
+                select.innerHTML += `<option value="${i.id}">${i.name} (الرصيد الحالي: ${i.qty} ${i.unit})</option>`;
+            });
+
+            const suppSelect = document.getElementById('in-supplier');
+            suppSelect.innerHTML = '';
+            appData.suppliers.forEach(s => {
+                suppSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+
+            document.getElementById('stock-in-modal').classList.remove('hidden');
+        }
+
+        function saveStockIn(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('in-item-id').value;
+            const qty = Number(document.getElementById('in-qty').value);
+            const price = Number(document.getElementById('in-price').value);
+            const supplierId = document.getElementById('in-supplier').value;
+            const notes = document.getElementById('in-notes').value.trim();
+
+            const item = appData.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            // Atomic update to item stock
+            item.qty = Number(item.qty) + qty;
+
+            const record = {
+                id: 'in_' + Date.now(),
+                code: 'IN-' + Math.floor(1000 + Math.random() * 9000),
+                itemId,
+                qty,
+                price,
+                supplierId,
+                notes,
+                user: currentUser.fullname,
+                date: new Date().toISOString().replace('T', ' ').substring(0, 16)
+            };
+
+            appData.stockIn.unshift(record);
+            saveStorage();
+
+            closeModal('stock-in-modal');
+            showToast(`تمت إضافة ${qty} ${item.unit} إلى رصيد صنف (${item.name})`, 'success');
+            renderDashboard();
+        }
+
+        function renderStockInTable() {
+            const tbody = document.getElementById('stock-in-table-body');
+            tbody.innerHTML = '';
+
+            appData.stockIn.forEach(rec => {
+                const item = appData.items.find(i => i.id === rec.itemId);
+                const supplier = appData.suppliers.find(s => s.id === rec.supplierId);
+                const total = (rec.qty * (rec.price || 0)).toFixed(2);
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 font-mono text-xs text-emerald-600 font-bold">${rec.code}</td>
+                        <td class="p-3 text-xs">${rec.date}</td>
+                        <td class="p-3 font-bold">${item ? item.name : 'صنف محذوف'}</td>
+                        <td class="p-3 font-bold text-emerald-600">+${rec.qty} ${item ? item.unit : ''}</td>
+                        <td class="p-3">${supplier ? supplier.name : '-'}</td>
+                        <td class="p-3">${rec.price || 0} ج.م</td>
+                        <td class="p-3 font-bold">${total} ج.م</td>
+                        <td class="p-3 text-xs">${rec.user}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openStockOutModal() {
+            const select = document.getElementById('out-item-id');
+            select.innerHTML = '';
+            appData.items.forEach(i => {
+                select.innerHTML += `<option value="${i.id}">${i.name} (المتاح: ${i.qty} ${i.unit})</option>`;
+            });
+
+            updateMaxOutStockHint();
+            document.getElementById('stock-out-modal').classList.remove('hidden');
+        }
+
+        function updateMaxOutStockHint() {
+            const itemId = document.getElementById('out-item-id').value;
+            const item = appData.items.find(i => i.id === itemId);
+            const hint = document.getElementById('out-stock-hint');
+            if (item) {
+                hint.innerText = `الكمية المتوفرة حالياً بالصفحة: ${item.qty} ${item.unit}`;
+                if (item.qty === 0) {
+                    hint.classList.add('text-red-500');
+                } else {
+                    hint.classList.remove('text-red-500');
+                }
+            }
+        }
+
+        function saveStockOut(e) {
+            e.preventDefault();
+            const itemId = document.getElementById('out-item-id').value;
+            const qty = Number(document.getElementById('out-qty').value);
+            const recipient = document.getElementById('out-recipient').value.trim();
+            const reason = document.getElementById('out-reason').value.trim();
+
+            const item = appData.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            // REAL BUSINESS LOGIC: Do NOT allow issuing more than current available stock!
+            if (qty > Number(item.qty)) {
+                showToast(`خطأ! الكمية المطلوبة (${qty}) أكبر من الرصيد المتوفر بالمخزن (${item.qty})`, 'error');
+                return;
+            }
+
+            // Deduct stock
+            item.qty = Number(item.qty) - qty;
+
+            const record = {
+                id: 'out_' + Date.now(),
+                code: 'OUT-' + Math.floor(2000 + Math.random() * 9000),
+                itemId,
+                qty,
+                recipient,
+                reason,
+                user: currentUser.fullname,
+                date: new Date().toISOString().replace('T', ' ').substring(0, 16)
+            };
+
+            appData.stockOut.unshift(record);
+            saveStorage();
+
+            closeModal('stock-out-modal');
+            showToast(`تم خصم ${qty} ${item.unit} من صنف (${item.name}) وتوثيق عملية الصرف`, 'success');
+            renderDashboard();
+        }
+
+        function renderStockOutTable() {
+            const tbody = document.getElementById('stock-out-table-body');
+            tbody.innerHTML = '';
+
+            appData.stockOut.forEach(rec => {
+                const item = appData.items.find(i => i.id === rec.itemId);
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3 font-mono text-xs text-rose-600 font-bold">${rec.code}</td>
+                        <td class="p-3 text-xs">${rec.date}</td>
+                        <td class="p-3 font-bold">${item ? item.name : 'صنف محذوف'}</td>
+                        <td class="p-3 font-bold text-rose-600">-${rec.qty} ${item ? item.unit : ''}</td>
+                        <td class="p-3 font-semibold">${rec.recipient}</td>
+                        <td class="p-3 text-xs text-slate-500">${rec.reason || '-'}</td>
+                        <td class="p-3 text-xs">${rec.user}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderCategories() {
+            const grid = document.getElementById('categories-grid');
+            grid.innerHTML = '';
+
+            appData.categories.forEach(cat => {
+                const count = appData.items.filter(i => i.categoryId === cat.id).length;
+                grid.innerHTML += `
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800 dark:text-white">${cat.name}</h3>
+                            <p class="text-xs text-slate-500 mt-1">${cat.desc || 'لا يوجد وصف'}</p>
+                            <span class="inline-block mt-3 px-3 py-1 bg-church-50 text-church-700 dark:bg-slate-700 dark:text-church-300 rounded-full text-xs font-bold">
+                                ${count} أصناف مسجلة
+                            </span>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-church-100 dark:bg-slate-700 text-church-600 dark:text-church-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openCategoryModal() {
+            document.getElementById('category-modal').classList.remove('hidden');
+        }
+
+        function saveCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('cat-name').value.trim();
+            const desc = document.getElementById('cat-desc').value.trim();
+
+            appData.categories.push({ id: 'c_' + Date.now(), name, desc });
+            saveStorage();
+            closeModal('category-modal');
+            renderCategories();
+            showToast('تمت إضافة التصنيف الجديد', 'success');
+        }
+
+        function renderSuppliers() {
+            const grid = document.getElementById('suppliers-grid');
+            grid.innerHTML = '';
+
+            appData.suppliers.forEach(s => {
+                grid.innerHTML += `
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-base text-slate-800 dark:text-white">${s.name}</h3>
+                            <i class="fa-solid fa-truck-field text-purple-500"></i>
+                        </div>
+                        <p class="text-xs text-slate-500"><i class="fa-solid fa-phone ml-1"></i> ${s.phone || 'غير متاح'}</p>
+                        <p class="text-xs text-slate-500"><i class="fa-solid fa-location-dot ml-1"></i> ${s.address || '-'}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function openSupplierModal() {
+            document.getElementById('supplier-modal').classList.remove('hidden');
+        }
+
+        function saveSupplier(e) {
+            e.preventDefault();
+            const name = document.getElementById('supplier-name').value.trim();
+            const phone = document.getElementById('supplier-phone').value.trim();
+            const address = document.getElementById('supplier-address').value.trim();
+
+            appData.suppliers.push({ id: 's_' + Date.now(), name, phone, address });
+            saveStorage();
+            closeModal('supplier-modal');
+            renderSuppliers();
+            showToast('تم حفظ الجهة والمورد', 'success');
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+
+            appData.users.forEach(u => {
+                const rolesMap = { 'admin': 'مدير النظام', 'storekeeper': 'أمين مخزن', 'viewer': 'مستخدم للعرض' };
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
+                        <td class="p-3.5 font-bold">${u.fullname}</td>
+                        <td class="p-3.5 font-mono text-xs">${u.username}</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">${rolesMap[u.role] || u.role}</span></td>
+                        <td class="p-3.5"><span class="text-xs text-emerald-600 font-bold">نشط</span></td>
+                        <td class="p-3.5 text-center">--</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openUserModal() {
+            document.getElementById('user-modal').classList.remove('hidden');
+        }
+
+        function saveUser(e) {
+            e.preventDefault();
+            const fullname = document.getElementById('user-fullname').value.trim();
+            const username = document.getElementById('user-name').value.trim();
+            const pass = document.getElementById('user-pass').value.trim();
+            const role = document.getElementById('user-role').value;
+
+            appData.users.push({ id: 'u_' + Date.now(), fullname, username, pass, role });
+            saveStorage();
+            closeModal('user-modal');
+            renderUsers();
+            showToast('تمت إضافة المستخدم جديد بنجاح', 'success');
+        }
+
+        function generateReport() {
+            const type = document.getElementById('report-type').value;
+            const start = document.getElementById('report-date-start').value;
+            const end = document.getElementById('report-date-end').value;
+            const cat = document.getElementById('report-category').value;
+
+            // Populate category select if empty
+            const catSelect = document.getElementById('report-category');
+            if (catSelect && catSelect.children.length <= 1) {
+                appData.categories.forEach(c => {
+                    catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            }
+
+            document.getElementById('report-print-date').innerText = new Date().toLocaleDateString('ar-EG');
+            document.getElementById('report-print-user').innerText = currentUser ? currentUser.fullname : 'المدير';
+
+            const head = document.getElementById('report-table-head');
+            const body = document.getElementById('report-table-body');
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (type === 'inventory' || type === 'low-stock') {
+                document.getElementById('report-title-display').innerText = type === 'inventory' ? 'تقرير رصيد وتفاصيل المخزون الحالي' : 'تقرير الأصناف الناقصة وتنبيهات حد الأمان';
+
+                head.innerHTML = `
+                    <tr>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الكود</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">اسم الصنف</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">التصنيف</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الكمية الحالية</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الحد الأدنى</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">مكان التخزين</th>
+                    </tr>
+                `;
+
+                let list = appData.items;
+                if (type === 'low-stock') {
+                    list = list.filter(i => Number(i.qty) <= Number(i.minQty));
+                }
+                if (cat !== 'all') {
+                    list = list.filter(i => i.categoryId === cat);
+                }
+
+                list.forEach(i => {
+                    const cName = appData.categories.find(c => c.id === i.categoryId)?.name || '';
+                    body.innerHTML += `
+                        <tr>
+                            <td class="p-2 border border-slate-300 dark:border-slate-700 font-mono text-xs">${i.code}</td>
+                            <td class="p-2 border border-slate-300 dark:border-slate-700 font-bold">${i.name}</td>
+                            <td class="p-2 border border-slate-300 dark:border-slate-700">${cName}</td>
+                            <td class="p-2 border border-slate-300 dark:border-slate-700 font-bold">${i.qty} ${i.unit}</td>
+                            <td class="p-2 border border-slate-300 dark:border-slate-700">${i.minQty}</td>
+                            <td class="p-2 border border-slate-300 dark:border-slate-700 text-xs">${i.location || '-'}</td>
+                        </tr>
+                    `;
+                });
+            } else if (type === 'stock-in') {
+                document.getElementById('report-title-display').innerText = `تقرير حركة توريد الأصناف (الواردات) من ${start} إلى ${end}`;
+
+                head.innerHTML = `
+                    <tr>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">رقم العملية</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">التاريخ</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الصنف</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الكمية</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">المورد</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">المسؤول</th>
+                    </tr>
+                `;
+
+                appData.stockIn.forEach(rec => {
+                    const item = appData.items.find(i => i.id === rec.itemId);
+                    const supp = appData.suppliers.find(s => s.id === rec.supplierId);
+                    body.innerHTML += `
+                        <tr>
+                            <td class="p-2 border font-mono text-xs">${rec.code}</td>
+                            <td class="p-2 border text-xs">${rec.date}</td>
+                            <td class="p-2 border font-bold">${item ? item.name : ''}</td>
+                            <td class="p-2 border font-bold text-emerald-600">+${rec.qty} ${item ? item.unit : ''}</td>
+                            <td class="p-2 border">${supp ? supp.name : '-'}</td>
+                            <td class="p-2 border text-xs">${rec.user}</td>
+                        </tr>
+                    `;
+                });
+            } else if (type === 'stock-out') {
+                document.getElementById('report-title-display').innerText = `تقرير حركة صرف المستلزمات (المنصرف) من ${start} إلى ${end}`;
+
+                head.innerHTML = `
+                    <tr>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">رقم العملية</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">التاريخ</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الصنف</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الكمية</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">الجهة المستلمة</th>
+                        <th class="p-2 border border-slate-300 dark:border-slate-700">المسؤول</th>
+                    </tr>
+                `;
+
+                appData.stockOut.forEach(rec => {
+                    const item = appData.items.find(i => i.id === rec.itemId);
+                    body.innerHTML += `
+                        <tr>
+                            <td class="p-2 border font-mono text-xs">${rec.code}</td>
+                            <td class="p-2 border text-xs">${rec.date}</td>
+                            <td class="p-2 border font-bold">${item ? item.name : ''}</td>
+                            <td class="p-2 border font-bold text-rose-600">-${rec.qty} ${item ? item.unit : ''}</td>
+                            <td class="p-2 border">${rec.recipient}</td>
+                            <td class="p-2 border text-xs">${rec.user}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function exportReportToExcel() {
+            const table = document.querySelector('.print-container table');
+            if (!table) return;
+            const wb = XLSX.utils.table_to_book(table, { sheet: "تقرير المخزن" });
+            XLSX.writeFile(wb, `تقرير_مخزن_كنيسة_الأنبا_شنودة_${Date.now()}.xlsx`);
+            showToast('تم تصدير التقرير إلى ملف Excel بنجاح', 'success');
+        }
+
+        function exportBackupData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `church_inventory_backup_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchorElem.click();
+            showToast('تم تصدير ملف النسخة الاحتياطية بنجاح', 'success');
+        }
+
+        function importBackupData(e) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (event) {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    if (parsed.items && parsed.categories) {
+                        appData = parsed;
+                        saveStorage();
+                        showToast('تمت استعادة قاعدة البيانات بنجاح!', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast('ملف النسخة الاحتياطية غير صالح', 'error');
+                    }
+                } catch(err) {
+                    showToast('خطأ أثناء قراءة الملف', 'error');
+                }
+            };
+            fileReader.readAsText(e.target.files[0]);
+        }
+
+        function confirmResetData() {
+            if (confirm('هل أنت متأكد من إعادة ضبط قاعدة البيانات للبيانات الافتراضية؟ سيتم استبدال الحركات الحالية.')) {
+                appData = { ...SEED_DATA };
+                saveStorage();
+                showToast('تمت إعادة الضبط للبيانات الافتراضية', 'success');
+                setTimeout(() => location.reload(), 500);
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const bgClass = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-red-600' : 'bg-slate-800');
+            const icon = type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-circle-xmark' : 'fa-info-circle');
+
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-semibold transition duration-300 transform translate-y-2`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
